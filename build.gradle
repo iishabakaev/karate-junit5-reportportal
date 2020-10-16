@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+}
+
+ext {
+    javaVersion = '1.8'
+    karateVersion = '0.9.6'
+}
+
+sourceCompatibility = "${javaVersion}"
+targetCompatibility = "${javaVersion}"
+
+dependencies {
+    testCompile 'com.epam.reportportal:agent-java-junit5:5.0.0'
+    testCompile 'com.epam.reportportal:logger-java-logback:5.0.1'
+
+    testCompile "com.intuit.karate:karate-junit5:${karateVersion}"
+    testCompile "com.intuit.karate:karate-apache:${karateVersion}"
+}
+
+sourceSets {
+    test {
+        resources {
+            srcDir file('src/test/java')
+            exclude '**/*.java'
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty "karate.options", System.properties.getProperty("karate.options")
+    systemProperty "karate.env", System.properties.getProperty("karate.env")
+
+    systemProperty "rp.endpoint", System.properties.getProperty("rp.endpoint")
+    systemProperty "rp.uuid", System.properties.getProperty("rp.uuid")
+    systemProperty "rp.project", System.properties.getProperty("rp.project")
+    systemProperty "rp.launch", System.properties.getProperty("rp.launch")
+    systemProperty "rp.attributes", System.properties.getProperty("rp.attributes")
+
+    outputs.upToDateWhen { false }
+
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', true
+}
+
+repositories {
+    mavenCentral()
+    maven { url "http://dl.bintray.com/epam/reportportal" }
+}
+
+task karateDebug(type: JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'com.intuit.karate.cli.Main'
+}
